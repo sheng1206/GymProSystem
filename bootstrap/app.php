@@ -14,10 +14,10 @@ return Application::configure(basePath: dirname(__DIR__))
         $middleware->alias([
             'role' => \App\Http\Middleware\RoleMiddleware::class,
         ]);
+
+        // IDAGDAG MO ITONG LINE SA BABA:
+        $middleware->trustProxies(at: '*');
     })
-
-
-
     ->withExceptions(function (Exceptions $exceptions): void {
 
     })->create();
