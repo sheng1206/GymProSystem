@@ -1,7 +1,7 @@
 FROM php:8.2-cli
 
 RUN apt-get update && apt-get install -y \
-    unzip curl git zip libzip-dev \
+    unzip curl git zip libzip-dev nodejs npm \
     && docker-php-ext-install pdo pdo_mysql zip
 
 COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
@@ -11,6 +11,8 @@ WORKDIR /var/www
 COPY . .
 
 RUN composer install --no-dev --no-interaction --prefer-dist --no-scripts
+
+RUN npm install && npm run build
 
 RUN chmod -R 775 storage bootstrap/cache
 
