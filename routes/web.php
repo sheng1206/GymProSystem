@@ -134,6 +134,18 @@ Route::get('/debug-error', function () {
     ]);
 });
 
+Route::get('/run-migrations', function () {
+    try {
+        \Artisan::call('migrate', ['--force' => true]);
+        return response()->json([
+            'status' => 'done',
+            'output' => \Artisan::output()
+        ]);
+    } catch (\Exception $e) {
+        return response()->json(['error' => $e->getMessage()]);
+    }
+});
+
 
 /* auth */
 
