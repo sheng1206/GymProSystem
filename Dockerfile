@@ -13,12 +13,19 @@ WORKDIR /var/www
 # Copy ALL project files first
 COPY . .
 
-# Then install dependencies
+# Install dependencies
 RUN composer install --no-dev --no-interaction --prefer-dist
 
 # Fix permissions
 RUN chmod -R 775 storage bootstrap/cache
 
+# Cache config
+RUN php artisan config:clear
+RUN php artisan cache:clear
+
+ENV APP_DEBUG=true
+ENV LOG_CHANNEL=stderr
+
 EXPOSE 10000
 
-CMD php artisan serve --host=0.0.0.0 --port=10000
+CMD php artisan migrate --force && php artisan serve --host=0.0.0.0 --port=10000
