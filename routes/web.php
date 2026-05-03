@@ -117,6 +117,11 @@ Route::middleware(['auth', 'role:admin'])->group(function () {
     Route::delete('/attendance/{id}', [AttendanceController::class, 'destroy'])->name('attendance.destroy');
 });
 
+Route::get('/debug-error', function () {
+    $log = file_get_contents(storage_path('logs/laravel.log'));
+    return response($log)->header('Content-Type', 'text/plain');
+});
+
 /* auth */
 
 require __DIR__ . '/auth.php';
