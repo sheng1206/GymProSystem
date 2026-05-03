@@ -118,9 +118,22 @@ Route::middleware(['auth', 'role:admin'])->group(function () {
 });
 
 Route::get('/debug-error', function () {
-    $log = file_get_contents(storage_path('logs/laravel.log'));
-    return response($log)->header('Content-Type', 'text/plain');
+    try {
+        \DB::connection()->getPdo();
+        $db = 'connected';
+    } catch (\Exception $e) {
+        $db = $e->getMessage();
+    }
+    return response()->json([
+        'db' => $db,
+        'env' => app()->environment(),
+        'key' => config('app.key') ? 'set' : 'missing',
+        'log' => file_exists(storage_path('logs/laravel.log'))
+            ? file_get_contents(storage_path('logs/laravel.log'))
+            : 'no log file',
+    ]);
 });
+
 
 /* auth */
 
