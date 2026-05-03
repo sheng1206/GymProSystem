@@ -10,19 +10,14 @@ COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 
 WORKDIR /var/www
 
-# Copy ONLY composer files first (better caching)
-COPY composer.json composer.lock ./
-
-RUN composer install --no-dev --no-interaction --prefer-dist
-
-# Copy full project
+# Copy ALL project files first
 COPY . .
 
-# Fix permissions (IMPORTANT)
-RUN chmod -R 775 storage bootstrap/cache
+# Then install dependencies
+RUN composer install --no-dev --no-interaction --prefer-dist
 
-# DO NOT generate key here in production builds
-# Instead set APP_KEY in Render environment variables
+# Fix permissions
+RUN chmod -R 775 storage bootstrap/cache
 
 EXPOSE 10000
 
