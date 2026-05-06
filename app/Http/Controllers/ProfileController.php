@@ -7,6 +7,7 @@ use App\Models\MembershipPlan;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Redirect;
 use Illuminate\View\View;
 
@@ -29,16 +30,21 @@ class ProfileController extends Controller
     {
         $user = $request->user();
 
+        $user->update([
+            'name' => $request->full_name,
+            'email' => $request->email,
+        ]);
+
+        if ($request->filled('password')) {
+            $user->update([
+                'password' => Hash::make($request->password),
+            ]);
+        }
+
         if ($user->member) {
             $user->member->update([
                 'full_name' => $request->full_name,
                 'contact' => $request->contact,
-                'join_date' => $request->join_date,
-                'membership_plan_id' => $request->membership_plan_id,
-            ]);
-
-            $user->update([
-                'name' => $request->full_name,
             ]);
         }
 

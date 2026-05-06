@@ -3,6 +3,7 @@
 namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rules;
 
 class ProfileUpdateRequest extends FormRequest
 {
@@ -16,6 +17,9 @@ class ProfileUpdateRequest extends FormRequest
         return [
             'full_name' => ['required', 'string', 'max:255'],
             'contact' => ['required', 'string', 'max:255'],
+            'email' => ['required', 'email', 'max:255', 'unique:users,email,' . $this->user()->id],
+            'current_password' => ['required', 'current_password'],
+            'password' => ['nullable', 'confirmed', Rules\Password::defaults()],
         ];
     }
 }
