@@ -52,9 +52,9 @@
             </div>
 
             <div class="flex gap-3 pt-4 border-t">
-                <button type="submit" class="btn btn-primary">Update Profile</button>
-                <a href="{{ route('dashboard') }}" class="btn btn-secondary">Cancel</a>
-            </div>
+    <button type="submit" class="px-6 py-2 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-lg transition">Update Profile</button>
+    <a href="{{ route('dashboard') }}" class="px-6 py-2 bg-slate-200 hover:bg-slate-300 text-slate-700 font-semibold rounded-lg transition">Cancel</a>
+</div>
         </form>
     </div>
 @endsection
