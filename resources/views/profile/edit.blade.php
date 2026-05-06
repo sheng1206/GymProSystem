@@ -1,5 +1,10 @@
-@extends('layouts.app') @section('title', 'Edit Profile')
-@section('page-title', 'Edit Profile') @section('content') <div class="max-w-4xl">
+@extends('layouts.app')
+
+@section('title', 'Edit Profile')
+@section('page-title', 'Edit Profile')
+
+@section('content')
+    <div class="max-w-4xl">
         @if(session('status') === 'profile-updated')
             <div class="mb-4 p-3 bg-green-100 text-green-700 rounded-lg">Profile updated successfully!</div>
         @endif
@@ -31,25 +36,6 @@
                 </div>
 
                 <div>
-                    <label class="block text-sm font-semibold text-slate-700 mb-2">New Password <span
-                            class="text-slate-400 font-normal">(leave blank to keep current)</span></label>
-                    <input type="password" name="password" class="form-input w-full">
-                    @error('password') <p class="text-red-500 text-sm mt-1">{{ $message }}</p> @enderror
-                </div>
-
-                <div>
-                    <label class="block text-sm font-semibold text-slate-700 mb-2">Confirm New Password</label>
-                    <input type="password" name="password_confirmation" class="form-input w-full">
-                </div>
-
-                <div>
-                    <label class="block text-sm font-semibold text-slate-700 mb-2">Current Password <span
-                            class="text-red-500">*</span></label>
-                    <input type="password" name="current_password" class="form-input w-full" required>
-                    @error('current_password') <p class="text-red-500 text-sm mt-1">{{ $message }}</p> @enderror
-                </div>
-
-                <div>
                     <label class="block text-sm font-semibold text-slate-700 mb-2">Membership Plan</label>
                     <input type="text"
                         value="{{ $member && $member->membershipPlan ? $member->membershipPlan->plan_name : 'No Plan' }}"
@@ -62,6 +48,33 @@
                     <input type="text" value="{{ $member->join_date ?? '' }}"
                         class="form-input w-full bg-slate-100 cursor-not-allowed" disabled>
                     <p class="text-slate-400 text-xs mt-1">System generated</p>
+                </div>
+
+                <div></div>
+
+                <div class="md:col-span-2">
+                    <p class="text-sm font-semibold text-slate-700 mb-4 border-t pt-4">Change Password <span
+                            class="text-slate-400 font-normal">(optional)</span></p>
+                </div>
+
+                <div>
+                    <label class="block text-sm font-semibold text-slate-700 mb-2">New Password</label>
+                    <input type="password" name="password" class="form-input w-full">
+                    @error('password') <p class="text-red-500 text-sm mt-1">{{ $message }}</p> @enderror
+                </div>
+
+                <div>
+                    <label class="block text-sm font-semibold text-slate-700 mb-2">Confirm New Password</label>
+                    <input type="password" name="password_confirmation" class="form-input w-full">
+                </div>
+
+                <div class="md:col-span-2">
+                    <label class="block text-sm font-semibold text-slate-700 mb-2">
+                        Current Password
+                        <span class="text-slate-400 font-normal">(required only when changing email or password)</span>
+                    </label>
+                    <input type="password" name="current_password" class="form-input w-full md:w-1/2">
+                    @error('current_password') <p class="text-red-500 text-sm mt-1">{{ $message }}</p> @enderror
                 </div>
             </div>
 
