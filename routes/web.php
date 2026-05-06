@@ -117,36 +117,6 @@ Route::middleware(['auth', 'role:admin'])->group(function () {
     Route::delete('/attendance/{id}', [AttendanceController::class, 'destroy'])->name('attendance.destroy');
 });
 
-Route::get('/debug-error', function () {
-    try {
-        \DB::connection()->getPdo();
-        $db = 'connected';
-    } catch (\Exception $e) {
-        $db = $e->getMessage();
-    }
-    return response()->json([
-        'db' => $db,
-        'env' => app()->environment(),
-        'key' => config('app.key') ? 'set' : 'missing',
-        'log' => file_exists(storage_path('logs/laravel.log'))
-            ? file_get_contents(storage_path('logs/laravel.log'))
-            : 'no log file',
-    ]);
-});
-
-Route::get('/run-migrations', function () {
-    try {
-        \Artisan::call('migrate', ['--force' => true]);
-        return response()->json([
-            'status' => 'done',
-            'output' => \Artisan::output()
-        ]);
-    } catch (\Exception $e) {
-        return response()->json(['error' => $e->getMessage()]);
-    }
-});
-
-
 /* auth */
 
 require __DIR__ . '/auth.php';

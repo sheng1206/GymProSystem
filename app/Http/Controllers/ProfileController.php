@@ -33,6 +33,8 @@ class ProfileController extends Controller
             $user->member->update([
                 'full_name' => $request->full_name,
                 'contact' => $request->contact,
+                'join_date' => $request->join_date,
+                'membership_plan_id' => $request->membership_plan_id,
             ]);
 
             $user->update([

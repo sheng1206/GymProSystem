@@ -1,3 +1,4 @@
+
 @extends('layouts.app')
 
 @section('title', 'Edit Profile')
@@ -30,15 +31,23 @@
 
                 <div>
                     <label class="block text-sm font-semibold text-slate-700 mb-2">Membership Plan</label>
-                    <input type="text"
-                        value="{{ $member && $member->membershipPlan ? $member->membershipPlan->plan_name : 'No Plan' }}"
-                        class="form-input w-full bg-slate-100" disabled>
+                    <select name="membership_plan_id" class="form-input w-full">
+                        <option value="">No Plan</option>
+                        @foreach($membershipPlans as $plan)
+                            <option value="{{ $plan->id }}" {{ $member && $member->membership_plan_id == $plan->id ? 'selected' : '' }}>
+                                {{ $plan->plan_name }}
+                            </option>
+                        @endforeach
+                    </select>
                 </div>
 
                 <div>
                     <label class="block text-sm font-semibold text-slate-700 mb-2">Join Date</label>
-                    <input type="text" value="{{ $member->join_date ?? '' }}" class="form-input w-full bg-slate-100"
-                        disabled>
+                    <input type="date" name="join_date" value="{{ old('join_date', $member->join_date ?? '') }}"
+                        class="form-input w-full">
+                    @error('join_date')
+                        <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
+                    @enderror
                 </div>
             </div>
 

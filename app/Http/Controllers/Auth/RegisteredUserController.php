@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
+use App\Models\Member;
 use App\Models\User;
 use Illuminate\Auth\Events\Registered;
 use Illuminate\Http\RedirectResponse;
@@ -15,19 +16,11 @@ use Illuminate\View\View;
 
 class RegisteredUserController extends Controller
 {
-    /**
-     * Display the registration view.
-     */
     public function create(): View
     {
         return view('auth.register');
     }
 
-    /**
-     * Handle an incoming registration request.
-     *
-     * @throws ValidationException
-     */
     public function store(Request $request): RedirectResponse
     {
         $request->validate([
@@ -43,8 +36,14 @@ class RegisteredUserController extends Controller
             'role' => 'member',
         ]);
 
-        event(new Registered($user));
+        Member::create([
+            'full_name' => $request->name,
+            'contact' => '',
+            'join_date' => now()->toDateString(),
+            'user_id' => $user->id,
+        ]);
 
+        event(new Registered($user));
         Auth::login($user);
 
         return redirect(route('dashboard', absolute: false));
