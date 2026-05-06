@@ -50,11 +50,8 @@
                     <p class="text-slate-400 text-xs mt-1">System generated</p>
                 </div>
 
-                <div></div>
-
                 <div class="md:col-span-2">
-                    <p class="text-sm font-semibold text-slate-700 mb-4 border-t pt-4">Change Password <span
-                            class="text-slate-400 font-normal">(optional)</span></p>
+                    <p class="text-sm font-semibold text-slate-700 mb-4 border-t pt-4">Change Password</p>
                 </div>
 
                 <div>
@@ -66,15 +63,6 @@
                 <div>
                     <label class="block text-sm font-semibold text-slate-700 mb-2">Confirm New Password</label>
                     <input type="password" name="password_confirmation" class="form-input w-full">
-                </div>
-
-                <div class="md:col-span-2">
-                    <label class="block text-sm font-semibold text-slate-700 mb-2">
-                        Current Password
-                        <span class="text-slate-400 font-normal">(required only when changing email or password)</span>
-                    </label>
-                    <input type="password" name="current_password" class="form-input w-full md:w-1/2">
-                    @error('current_password') <p class="text-red-500 text-sm mt-1">{{ $message }}</p> @enderror
                 </div>
             </div>
 
