@@ -1,4 +1,4 @@
-<?php
+cat > config/cloudinary.php << 'EOF' <?php
 
 return [
     'notification_url' => null,
