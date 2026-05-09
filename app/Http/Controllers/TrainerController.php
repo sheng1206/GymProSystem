@@ -34,9 +34,11 @@ class TrainerController extends Controller
         $photoPath = null;
 
         if ($request->hasFile('photo')) {
-            $photoPath = $request->file('photo')->store('trainers', 'public');
+            $uploaded = cloudinary()->upload($request->file('photo')->getRealPath(), [
+                'folder' => 'trainers',
+            ]);
+            $photoPath = $uploaded->getSecurePath();
         }
-
 
         Trainer::create([
             'user_id' => auth()->id(),
@@ -49,6 +51,7 @@ class TrainerController extends Controller
             ->route('trainers.index')
             ->with('success', 'Trainer added successfully!');
     }
+
     public function show(string $id)
     {
         $trainer = Trainer::findOrFail($id);
@@ -76,11 +79,10 @@ class TrainerController extends Controller
         $photoPath = $trainer->photo;
 
         if ($request->hasFile('photo')) {
-            if ($trainer->photo && Storage::disk('public')->exists($trainer->photo)) {
-                Storage::disk('public')->delete($trainer->photo);
-            }
-
-            $photoPath = $request->file('photo')->store('trainers', 'public');
+            $uploaded = cloudinary()->upload($request->file('photo')->getRealPath(), [
+                'folder' => 'trainers',
+            ]);
+            $photoPath = $uploaded->getSecurePath();
         }
 
         $trainer->update([
@@ -97,11 +99,6 @@ class TrainerController extends Controller
     public function destroy(string $id)
     {
         $trainer = Trainer::findOrFail($id);
-
-        if ($trainer->photo && Storage::disk('public')->exists($trainer->photo)) {
-            Storage::disk('public')->delete($trainer->photo);
-        }
-
         $trainer->delete();
 
         return redirect()
