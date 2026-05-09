@@ -7,14 +7,27 @@ use App\Models\User;
 use App\Models\Attendance;
 use App\Models\TrainerAssignment;
 use Illuminate\Http\Request;
-use CloudinaryLabs\CloudinaryLaravel\Facades\Cloudinary;
+use Illuminate\Support\Facades\Http;
 
 class TrainerController extends Controller
 {
+    private function uploadToCloudinary($file)
+    {
+        $response = Http::attach(
+            'file',
+            file_get_contents($file->getRealPath()),
+            $file->getClientOriginalName()
+        )->post('https://api.cloudinary.com/v1_1/dxxur0plq/image/upload', [
+                    'upload_preset' => 'ml_default',
+                    'api_key' => '663256216782384',
+                ]);
+
+        return $response->json()['secure_url'] ?? null;
+    }
+
     public function index()
     {
         $trainers = Trainer::latest()->paginate(10);
-
         return view('trainers.index', compact('trainers'));
     }
 
@@ -32,12 +45,8 @@ class TrainerController extends Controller
         ]);
 
         $photoPath = null;
-
         if ($request->hasFile('photo')) {
-            $uploaded = Cloudinary::upload($request->file('photo')->getRealPath(), [
-                'folder' => 'trainers',
-            ]);
-            $photoPath = $uploaded->getSecurePath();
+            $photoPath = $this->uploadToCloudinary($request->file('photo'));
         }
 
         Trainer::create([
@@ -47,22 +56,18 @@ class TrainerController extends Controller
             'photo' => $photoPath,
         ]);
 
-        return redirect()
-            ->route('trainers.index')
-            ->with('success', 'Trainer added successfully!');
+        return redirect()->route('trainers.index')->with('success', 'Trainer added successfully!');
     }
 
     public function show(string $id)
     {
         $trainer = Trainer::findOrFail($id);
-
         return view('trainers.show', compact('trainer'));
     }
 
     public function edit(string $id)
     {
         $trainer = Trainer::findOrFail($id);
-
         return view('trainers.edit', compact('trainer'));
     }
 
@@ -75,14 +80,10 @@ class TrainerController extends Controller
         ]);
 
         $trainer = Trainer::findOrFail($id);
-
         $photoPath = $trainer->photo;
 
         if ($request->hasFile('photo')) {
-            $uploaded = Cloudinary::upload($request->file('photo')->getRealPath(), [
-                'folder' => 'trainers',
-            ]);
-            $photoPath = $uploaded->getSecurePath();
+            $photoPath = $this->uploadToCloudinary($request->file('photo'));
         }
 
         $trainer->update([
@@ -91,50 +92,40 @@ class TrainerController extends Controller
             'photo' => $photoPath,
         ]);
 
-        return redirect()
-            ->route('trainers.index')
-            ->with('success', 'Trainer updated successfully.');
+        return redirect()->route('trainers.index')->with('success', 'Trainer updated successfully.');
     }
 
     public function destroy(string $id)
     {
         $trainer = Trainer::findOrFail($id);
         $trainer->delete();
-
-        return redirect()
-            ->route('trainers.index')
-            ->with('success', 'Trainer deleted successfully.');
+        return redirect()->route('trainers.index')->with('success', 'Trainer deleted successfully.');
     }
 
     public function members()
     {
         $trainer = auth()->user()->trainer;
-
         $assignedMembers = $trainer
             ? $trainer->assignments()->with(['member.membershipPlan', 'member.payments'])->get()
             : collect();
-
         return view('trainer.members', compact('assignedMembers', 'trainer'));
     }
 
     public function profile()
     {
         $trainer = auth()->user()->trainer;
-
         return view('trainer.profile', compact('trainer'));
     }
 
     public function attendance()
     {
         $trainer = auth()->user()->trainer;
-
         $attendances = Attendance::with('member')
             ->whereHas('member.assignments', function ($query) use ($trainer) {
                 $query->where('trainer_id', $trainer->id);
             })
             ->latest()
             ->get();
-
         return view('trainer.attendance', compact('attendances'));
     }
 
