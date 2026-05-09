@@ -11,7 +11,6 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\Rules;
-use Illuminate\Validation\ValidationException;
 use Illuminate\View\View;
 
 class RegisteredUserController extends Controller
@@ -38,7 +37,7 @@ class RegisteredUserController extends Controller
 
         Member::create([
             'full_name' => $request->name,
-            'contact' => '',
+            'contact' => null,  // can be updated later in profile
             'join_date' => now()->toDateString(),
             'user_id' => $user->id,
         ]);
