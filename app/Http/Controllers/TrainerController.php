@@ -7,7 +7,7 @@ use App\Models\User;
 use App\Models\Attendance;
 use App\Models\TrainerAssignment;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Storage;
+use CloudinaryLabs\CloudinaryLaravel\Facades\Cloudinary;
 
 class TrainerController extends Controller
 {
@@ -34,7 +34,7 @@ class TrainerController extends Controller
         $photoPath = null;
 
         if ($request->hasFile('photo')) {
-            $uploaded = cloudinary()->upload($request->file('photo')->getRealPath(), [
+            $uploaded = Cloudinary::upload($request->file('photo')->getRealPath(), [
                 'folder' => 'trainers',
             ]);
             $photoPath = $uploaded->getSecurePath();
@@ -79,7 +79,7 @@ class TrainerController extends Controller
         $photoPath = $trainer->photo;
 
         if ($request->hasFile('photo')) {
-            $uploaded = cloudinary()->upload($request->file('photo')->getRealPath(), [
+            $uploaded = Cloudinary::upload($request->file('photo')->getRealPath(), [
                 'folder' => 'trainers',
             ]);
             $photoPath = $uploaded->getSecurePath();
