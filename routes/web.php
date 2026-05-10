@@ -30,6 +30,14 @@ Route::middleware('auth')->group(function () {
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 });
 
+/* member pages */
+
+Route::middleware(['auth', 'role:member'])->group(function () {
+    Route::get('/member/profile', [DashboardController::class, 'profile'])->name('member.profile');
+    Route::get('/member/payments', [DashboardController::class, 'payments'])->name('member.payments');
+    Route::get('/member/attendance', [DashboardController::class, 'attendance'])->name('member.attendance');
+});
+
 /* trainer */
 
 Route::middleware(['auth', 'role:trainer'])

@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Member;
 use App\Models\MembershipPlan;
 use App\Models\Payment;
+use App\Models\User;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 
@@ -38,17 +39,22 @@ class MemberController extends Controller
     {
         $membershipPlans = MembershipPlan::orderBy('plan_name')->get();
 
-        return view('members.create', compact('membershipPlans'));
+        // ✅ Only show users with role 'member' that don't have a member record yet
+        $users = User::where('role', 'member')
+            ->whereDoesntHave('member')
+            ->orderBy('name')
+            ->get();
+
+        return view('members.create', compact('membershipPlans', 'users'));
     }
 
     /**
      * Store a newly created member.
      */
-
-
     public function store(Request $request)
     {
         $request->validate([
+            'user_id' => 'required|exists:users,id|unique:members,user_id',
             'full_name' => 'required|string|max:255',
             'contact' => 'required|string|max:255',
             'membership_plan_id' => 'required|exists:membership_plans,id',
@@ -56,9 +62,9 @@ class MemberController extends Controller
             'payment_date' => 'required|date',
         ]);
 
-        // Create member
+        // ✅ Create member linked to the selected user
         $member = Member::create([
-            'user_id' => auth()->id(),
+            'user_id' => $request->user_id,
             'full_name' => $request->full_name,
             'contact' => $request->contact,
             'membership_plan_id' => $request->membership_plan_id,
@@ -67,10 +73,9 @@ class MemberController extends Controller
 
         // Get plan
         $plan = MembershipPlan::findOrFail($request->membership_plan_id);
-
         $paymentDate = Carbon::parse($request->payment_date);
 
-        // Create ONE payment only
+        // Create initial payment
         Payment::create([
             'member_id' => $member->id,
             'membership_plan_id' => $plan->id,
@@ -110,7 +115,16 @@ class MemberController extends Controller
         $member = Member::findOrFail($id);
         $membershipPlans = MembershipPlan::orderBy('plan_name')->get();
 
-        return view('members.edit', compact('member', 'membershipPlans'));
+        // ✅ Show users with role 'member' — include current member's user too
+        $users = User::where('role', 'member')
+            ->where(function ($q) use ($member) {
+                $q->whereDoesntHave('member')
+                    ->orWhere('id', $member->user_id);
+            })
+            ->orderBy('name')
+            ->get();
+
+        return view('members.edit', compact('member', 'membershipPlans', 'users'));
     }
 
     /**
@@ -118,16 +132,18 @@ class MemberController extends Controller
      */
     public function update(Request $request, string $id)
     {
+        $member = Member::findOrFail($id);
+
         $request->validate([
+            'user_id' => 'required|exists:users,id|unique:members,user_id,' . $member->id,
             'full_name' => 'required|string|max:255',
             'contact' => 'required|string|max:255',
             'membership_plan_id' => 'required|exists:membership_plans,id',
             'join_date' => 'required|date',
         ]);
 
-        $member = Member::findOrFail($id);
-
         $member->update([
+            'user_id' => $request->user_id,
             'full_name' => $request->full_name,
             'contact' => $request->contact,
             'membership_plan_id' => $request->membership_plan_id,

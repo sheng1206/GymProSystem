@@ -35,30 +35,32 @@
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
 
                 <!-- Member -->
-<div>
-    <label class="block text-sm font-semibold mb-2 text-gray-700">Member *</label>
-    <select name="member_id" id="member_id"
-        class="w-full rounded-xl border border-gray-300 px-4 py-3 focus:ring-2 focus:ring-blue-500 outline-none"
-        required>
-        <option value="">Select Member</option>
-        @foreach ($members as $member)
-            @php
-                $lastPayment = $member->payments()->latest('payment_date')->first();
-            @endphp
-            <option value="{{ $member->id }}"
-                data-expiration="{{ $lastPayment?->expiration_date }}"
-                data-active="{{ $lastPayment && \Carbon\Carbon::parse($lastPayment->expiration_date)->isFuture() ? 'true' : 'false' }}"
-                {{ old('member_id') == $member->id ? 'selected' : '' }}>
-                {{ $member->full_name }}
-            </option>
-        @endforeach
-    </select>
+                <div>
+                    <label class="block text-sm font-semibold mb-2 text-gray-700">Member *</label>
+                    <select name="member_id" id="member_id"
+                        class="w-full rounded-xl border border-gray-300 px-4 py-3 focus:ring-2 focus:ring-blue-500 outline-none"
+                        required>
+                        <option value="">Select Member</option>
+                        @foreach ($members as $member)
+                            @php
+                                $lastPayment = $member->payments()->latest('payment_date')->first();
+                            @endphp
+                            <option value="{{ $member->id }}"
+                                data-expiration="{{ $lastPayment?->expiration_date }}"
+                                data-active="{{ $lastPayment && \Carbon\Carbon::parse($lastPayment->expiration_date)->isFuture() ? 'true' : 'false' }}"
+                                {{ old('member_id') == $member->id ? 'selected' : '' }}>
+                                {{ $member->full_name }}
+                            </option>
+                        @endforeach
+                    </select>
 
-    <!-- Warning -->
-    <div id="activeWarning" class="hidden mt-2 rounded-xl bg-yellow-50 border border-yellow-200 px-4 py-3 text-sm text-yellow-700">
-        ⚠️ This member has an active payment until <span id="expirationDate" class="font-semibold"></span>.
-    </div>
-</div>
+                    <!-- Active Payment Warning -->
+                    <div id="activeWarning"
+                        class="hidden mt-2 rounded-xl bg-red-50 border border-red-200 px-4 py-3 text-sm text-red-700">
+                        ⚠️ This member already has an active payment until <span id="expirationDate"
+                            class="font-semibold"></span>. Cannot record a new payment.
+                    </div>
+                </div>
 
                 <!-- Plan -->
                 <div>
@@ -97,8 +99,9 @@
             </div>
 
             <div class="flex items-center gap-3 pt-4 border-t">
-                <button type="submit"
-                    class="px-5 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-700 text-sm font-medium text-white transition">
+                <!-- ✅ Submit button — disabled when member has active payment -->
+                <button type="submit" id="submitBtn"
+                    class="px-5 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-700 text-sm font-medium text-white transition disabled:opacity-50 disabled:cursor-not-allowed disabled:bg-gray-400 disabled:hover:bg-gray-400">
                     Record Payment
                 </button>
                 <a href="{{ route('payments.index') }}"
@@ -111,30 +114,41 @@
     </div>
 
     <script>
-    const planSelect = document.getElementById('membership_plan_id');
-    const amountInput = document.getElementById('amount');
-    const memberSelect = document.getElementById('member_id');
-    const activeWarning = document.getElementById('activeWarning');
-    const expirationDate = document.getElementById('expirationDate');
+        const planSelect = document.getElementById('membership_plan_id');
+        const amountInput = document.getElementById('amount');
+        const memberSelect = document.getElementById('member_id');
+        const activeWarning = document.getElementById('activeWarning');
+        const expirationDate = document.getElementById('expirationDate');
+        const submitBtn = document.getElementById('submitBtn');
 
-    planSelect.addEventListener('change', function () {
-        const selected = this.options[this.selectedIndex];
-        const price = selected.getAttribute('data-price');
-        amountInput.value = price ? price : '';
-    });
+        planSelect.addEventListener('change', function () {
+            const selected = this.options[this.selectedIndex];
+            const price = selected.getAttribute('data-price');
+            amountInput.value = price ? price : '';
+        });
 
-    memberSelect.addEventListener('change', function () {
-        const selected = this.options[this.selectedIndex];
-        const isActive = selected.getAttribute('data-active');
-        const expiration = selected.getAttribute('data-expiration');
+        memberSelect.addEventListener('change', function () {
+            const selected = this.options[this.selectedIndex];
+            const isActive = selected.getAttribute('data-active');
+            const expiration = selected.getAttribute('data-expiration');
 
-        if (isActive === 'true' && expiration) {
-            const date = new Date(expiration);
-            expirationDate.textContent = date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
-            activeWarning.classList.remove('hidden');
-        } else {
-            activeWarning.classList.add('hidden');
-        }
-    });
-</script>
+            if (isActive === 'true' && expiration) {
+                const date = new Date(expiration);
+                expirationDate.textContent = date.toLocaleDateString('en-US', {
+                    month: 'long',
+                    day: 'numeric',
+                    year: 'numeric'
+                });
+                activeWarning.classList.remove('hidden');
+
+                // ✅ Disable the submit button
+                submitBtn.disabled = true;
+            } else {
+                activeWarning.classList.add('hidden');
+
+                // ✅ Re-enable the submit button
+                submitBtn.disabled = false;
+            }
+        });
+    </script>
 @endsection

@@ -164,26 +164,24 @@
             @if(auth()->user()->role === 'member')
                 <p class="text-xs text-slate-500 px-3 mt-4">MY ACCOUNT</p>
 
-                <button type="button" onclick="document.getElementById('profile')?.scrollIntoView({ behavior: 'smooth' })"
-                    class="w-full text-left flex items-center gap-3 px-4 py-3 rounded-xl text-slate-300 hover:bg-white/10 transition">
+                <a href="{{ route('member.profile') }}"
+                    class="flex items-center gap-3 px-4 py-3 rounded-xl transition {{ request()->routeIs('member.profile') ? 'bg-blue-600 text-white' : 'text-slate-300 hover:bg-white/10' }}">
                     <i data-lucide="user" class="w-5 h-5"></i>
                     <span>My Profile</span>
-                </button>
+                </a>
 
-                <button type="button" onclick="document.getElementById('payments')?.scrollIntoView({ behavior: 'smooth' })"
-                    class="w-full text-left flex items-center gap-3 px-4 py-3 rounded-xl text-slate-300 hover:bg-white/10 transition">
+                <a href="{{ route('member.payments') }}"
+                    class="flex items-center gap-3 px-4 py-3 rounded-xl transition {{ request()->routeIs('member.payments') ? 'bg-blue-600 text-white' : 'text-slate-300 hover:bg-white/10' }}">
                     <i data-lucide="wallet" class="w-5 h-5"></i>
                     <span>My Payments</span>
-                </button>
+                </a>
 
-                <button type="button"
-                    onclick="document.getElementById('attendance')?.scrollIntoView({ behavior: 'smooth' })"
-                    class="w-full text-left flex items-center gap-3 px-4 py-3 rounded-xl text-slate-300 hover:bg-white/10 transition">
+                <a href="{{ route('member.attendance') }}"
+                    class="flex items-center gap-3 px-4 py-3 rounded-xl transition {{ request()->routeIs('member.attendance') ? 'bg-blue-600 text-white' : 'text-slate-300 hover:bg-white/10' }}">
                     <i data-lucide="calendar-check-2" class="w-5 h-5"></i>
                     <span>My Attendance</span>
-                </button>
+                </a>
             @endif
-
             {{-- TRAINER --}}
             @if(auth()->user()->role === 'trainer')
                 <p class="text-[11px] uppercase tracking-[0.2em] text-slate-500 px-3 pt-4 pb-1">

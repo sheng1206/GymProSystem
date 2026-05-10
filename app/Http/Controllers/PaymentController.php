@@ -43,6 +43,18 @@ class PaymentController extends Controller
             'payment_date' => 'required|date',
         ]);
 
+        // ✅ Block if member already has an active payment
+        $activePayment = Payment::where('member_id', $request->member_id)
+            ->where('expiration_date', '>=', now()->toDateString())
+            ->first();
+
+        if ($activePayment) {
+            return back()->withErrors([
+                'member_id' => 'This member already has an active payment until ' .
+                    Carbon::parse($activePayment->expiration_date)->format('F d, Y') . '. Cannot add a new payment.',
+            ])->withInput();
+        }
+
         $plan = MembershipPlan::findOrFail($request->membership_plan_id);
         $paymentDate = Carbon::parse($request->payment_date);
 
